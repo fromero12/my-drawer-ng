@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core'
 import { RadSideDrawer } from 'nativescript-ui-sidedrawer'
-import { Application } from '@nativescript/core'
+import { Application, GestureEventData, GridLayout } from '@nativescript/core'
 
 @Component({
   selector: 'Featured',
@@ -19,4 +19,18 @@ export class FeaturedComponent implements OnInit {
     const sideDrawer = <RadSideDrawer>Application.getRootView()
     sideDrawer.showDrawer()
   }
+
+  onLongPress(args: any) {
+    console.log("Object that triggered the event: " + args.object);
+    console.log("View that triggered the event: " + args.view);
+    console.log("Event name: " + args.eventName);
+
+    const grid = <GridLayout>args.object;
+    grid.rotate = 0;
+    grid.animate({
+        rotate: 360,
+        duration: 2000
+    });
+}
+
 }

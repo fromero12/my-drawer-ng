@@ -7,7 +7,18 @@
   </GridLayout>
 </ActionBar>
 
-<GridLayout class="page__content">
-  <Label class="page__content-icon fas" text="&#xf002;"></Label>
-  <Label class="page__content-placeholder" text="<!-- Page content goes here -->"></Label>
-</GridLayout>
+<StackLayout #layout class=" page page-content">
+  <Label class="page-icon fa" text="&#xf002;"></Label>
+  <SearchForm (search)="buscarAhora($event)" [inicial]="'hola'" ></SearchForm>
+  <ListView class="list-group" [items]="this.resultados" (itemTap)="onItemTap($event)"
+    style="height: 1250px">
+      <ng-template let-x="item">
+        <FlexboxLayout flexDirection="row" class="list-group-item">
+          <Image src="res://ic_launcher" class="thumb img-circle"></Image>
+          <Label [text]="x" class="list-group-item-heading"
+            verticalAlignment="center" style="width: 60%"></Label>
+    </FlexboxLayout>
+  </ng-template>
+</ListView>
+  
+</StackLayout>
