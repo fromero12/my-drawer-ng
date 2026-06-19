@@ -1,59 +1,11 @@
-/*import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { RadSideDrawer } from 'nativescript-ui-sidedrawer';
-import { Application, Dialogs } from '@nativescript/core';
-import { NoticiasService } from "../domain/noticias.service";
-
-@Component({
-  selector: 'Search',
-  moduleId: module.id,
-  templateUrl: './search.component.html',
-})
-export class SearchComponent implements OnInit {
-  resultados: Array<string> = [];
-  @ViewChild("layout", { static: false }) layout!: ElementRef;
-
-  constructor(public noticias: NoticiasService) {
-  }
-
-  ngOnInit(): void {
-  }
-
-  onDrawerButtonTap(): void {
-    const sideDrawer = <RadSideDrawer>Application.getRootView();
-    sideDrawer.showDrawer();
-  }
-
-  onItemTap(x: any): void {
-    console.dir(x);
-  }
-
-  buscarAhora(s: string) {
-    console.dir("buscarAhora" + s);
-    this.noticias.buscar(s).then((r: any) => {
-        console.log("resultados buscarAhora: " + JSON.stringify(r));
-        this.resultados = r;
-    }, (e: any) => {
-        console.log("error buscarAhora " + e);
-        // Usamos Dialogs que es parte del core de NativeScript
-        // Esto elimina cualquier dependencia de plugins externos que estaban fallando
-        Dialogs.alert({
-            title: "Error",
-            message: "Error en la búsqueda: " + e,
-            okButtonText: "Cerrar"
-        });
-    });
-  }
-}*/
-
-import { Component, ElementRef, OnInit, ViewChild } from "@angular/core";
+import { Component, OnInit, ViewChild, ElementRef } from "@angular/core";
 import { Store } from "@ngrx/store";
 import { RadSideDrawer } from "nativescript-ui-sidedrawer";
 import { AppState } from "../app.module";
 import { Noticia, NuevaNoticiaAction } from "../domain/noticias-state.model";
 import { NoticiasService } from "../domain/noticias.service";
-// Importamos Dialogs y Application desde @nativescript/core
-import { Dialogs, Application } from "@nativescript/core";
-import { consumerPollProducersForChange } from "@angular/core/primitives/signals";
+import { Dialogs, Application, View } from "@nativescript/core";
+import { SocialShare } from "@nativescript/social-share";
 
 @Component({
     selector: "Search",
@@ -61,7 +13,8 @@ import { consumerPollProducersForChange } from "@angular/core/primitives/signals
     templateUrl: "./search.component.html"
 })
 export class SearchComponent implements OnInit {
-    resultados: Array<string> = [];
+    // CORRECCIÓN: 'resultados' debe ser 'any' o una interfaz, no Array<string>
+    resultados: any = { items: [] }; 
     @ViewChild("layout", { static: false }) layout!: ElementRef;
 
     constructor(
@@ -70,13 +23,13 @@ export class SearchComponent implements OnInit {
     ) { }
 
     ngOnInit(): void {
-        this.store.select((state: any) => state.noticias ? state.noticias.sugerida : null)
-            .subscribe((f) => {
-                if (f != null) {
-                    // Usamos Dialogs.alert en lugar de Toast
+        // Uso de encadenamiento opcional para evitar errores de null
+        this.store.select((state: any) => state.noticias?.sugerida)
+            .subscribe((sugerida) => {
+                if (sugerida) {
                     Dialogs.alert({
                         title: "Sugerencia",
-                        message: "Sugerimos leer: " + f.titulo,
+                        message: "Sugerimos leer: " + sugerida.titulo,
                         okButtonText: "Cerrar"
                     });
                 }
@@ -84,23 +37,36 @@ export class SearchComponent implements OnInit {
     }
 
     onDrawerButtonTap(): void {
-        // Forma moderna de obtener el root view para el SideDrawer
         const sideDrawer = <RadSideDrawer>Application.getRootView();
         sideDrawer.showDrawer();
     }
 
     onItemTap(args: any): void {
+        // Asegúrate de que el bindingContext sea del tipo Noticia
         this.store.dispatch(new NuevaNoticiaAction(new Noticia(args.view.bindingContext)));
     }
 
+    onLongPress(s): void {
+        console.log(s);
+        SocialShare.shareText(s,"Asunto: compartido desde el curso!");
+    }
+
     buscarAhora(s: string) {
-        console.dir("buscarAhora" + s);
-        this.noticias.buscar(s).then((r: any) => {
-            console.log("resultados buscarAhora: " + JSON.stringify(r));
-            this.resultados = r;   
-        }, (e) => {
-            console.log("error buscarAhora " + e);
-            //Toast.show({text: "Error en la búsqueda", duration: Toast.DURATION.SHORT});
-        });
+        console.log("Iniciando búsqueda: " + s);
+        this.noticias.buscar(s).then(
+            (r: any) => {
+                // CORRECCIÓN: Asignamos el objeto r completo o inicializamos estructura segura
+                this.resultados = r ? r : { items: [] };
+                console.log("Resultados recibidos:", JSON.stringify(this.resultados));
+            }, 
+            (e) => {
+                console.error("Error en búsqueda:", e);
+                Dialogs.alert({
+                    title: "Error",
+                    message: "No se pudieron obtener resultados.",
+                    okButtonText: "Cerrar"
+                });
+            }
+        );
     }
 }

@@ -1,22 +1,33 @@
-import { Component, OnInit } from '@angular/core'
-import { RadSideDrawer } from 'nativescript-ui-sidedrawer'
-import { Application } from '@nativescript/core'
+import { Component, ElementRef, OnInit, ViewChild } from "@angular/core";
+import { registerElement } from "@nativescript/angular";
+import { RadSideDrawer } from "nativescript-ui-sidedrawer";
+import { Application } from "@nativescript/core";
+
+// Registrar el elemento para Google Maps
+registerElement("MapView", () => require("nativescript-google-maps-sdk").MapView);
 
 @Component({
-  selector: 'Browse',
-  templateUrl: './browse.component.html',
+    selector: "Browse",
+    moduleId: module.id,
+    templateUrl: "./browse.component.html"
 })
 export class BrowseComponent implements OnInit {
-  constructor() {
-    // Use the component constructor to inject providers.
-  }
+    @ViewChild("MapView", { static: false }) mapView!: ElementRef;
 
-  ngOnInit(): void {
-    // Init your component properties here.
-  }
+    constructor() {
+        // Inyección de servicios
+    }
 
-  onDrawerButtonTap(): void {
-    const sideDrawer = <RadSideDrawer>Application.getRootView()
-    sideDrawer.showDrawer()
-  }
+    ngOnInit(): void {
+        // Inicialización
+    }
+
+    onDrawerButtonTap(): void {
+        const sideDrawer = <RadSideDrawer>Application.getRootView();
+        sideDrawer.showDrawer();
+    }
+
+    onMapReady(args: any): void {
+        console.log("Map Ready");
+    }
 }

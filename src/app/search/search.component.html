@@ -1,24 +1,20 @@
 <ActionBar class="action-bar">
-  <NavigationButton visibility="hidden"></NavigationButton>
-  <GridLayout columns="50, *">
-    <Label class="action-bar-title" text="Search" colSpan="2"></Label>
-
-    <Label class="fas" text="&#xf0c9;" (tap)="onDrawerButtonTap()"></Label>
-  </GridLayout>
+    <NavigationButton ios:visibility="collapsed" icon="res://menu" (tap)="onDrawerButtonTap()"></NavigationButton>
+    <ActionItem icon="res://navigation/menu" android:visibility="collapsed" (tap)="onDrawerButtonTap()" ios.position="left"></ActionItem>
+    <Label class="action-bar-title" text="Search"></Label>
 </ActionBar>
 
-<StackLayout #layout class=" page page-content">
-  <Label class="page-icon fa" text="&#xf002;"></Label>
-  <SearchForm (search)="buscarAhora($event)" [inicial]="'hola'" ></SearchForm>
-  <ListView class="list-group" [items]="this.resultados" (itemTap)="onItemTap($event)"
-    style="height: 1250px">
-      <ng-template let-x="item">
-        <FlexboxLayout flexDirection="row" class="list-group-item">
-          <Image src="res://ic_launcher" class="thumb img-circle"></Image>
-          <Label [text]="x" class="list-group-item-heading"
-            verticalAlignment="center" style="width: 60%"></Label>
-    </FlexboxLayout>
-  </ng-template>
-</ListView>
-  
+<StackLayout #layout class="page page-content">
+    <Label class="page-icon fa" text="&#xf002;"></Label>
+    <SearchForm (search)="buscarAhora($event)" [inicial]="'hola'"></SearchForm>
+    
+    <ListView class="list-group" [items]="resultados.items" (itemTap)="onItemTap($event)">
+        <ng-template let-x="item">
+            <FlexboxLayout flexDirection="row" class="list-group-item">
+                <Image src="res://icon" class="thumb img-circle" (longPress)="onLongPress(x)"></Image>
+                <Label [text]="x" class="list-group-item-heading" 
+                  verticalAlignment="center" style="width: 60%"></Label>
+            </FlexboxLayout>
+        </ng-template>
+    </ListView>
 </StackLayout>
